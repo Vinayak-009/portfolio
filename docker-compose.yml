@@ -2,7 +2,7 @@
 
 services:
   portfolio:
-    image: vinayak/portfolio-new:latest
+    image: vinayak1629/portfolio-new:latest
  
     ports:
       - "8080:8000"
