@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage("Code") {
+            steps {
+                echo "Cloning the code"
+                git url: "https://github.com/Vinayak-009/portfolio.git", branch: "main"
+            }
+        }
+        stage("Build") {
+            steps {
+                echo "Building the image"
+                sh "docker build -t portfolio-new ."
+            }
+        }
+        stage("Push to Dockerhub") {
+            steps {
+                echo "Pushing the image to Dockerhub"
+                withCredentials([usernamePassword(credentialsId: "dockerhub", passwordVariable: "dockerPass", usernameVariable: "dockerUser")]) {
+                    sh "docker tag portfolio-new ${env.dockerUser}/portfolio:latest"
+                    sh "docker login -u ${env.dockerUser} -p ${env.dockerPass}"
+                    sh "docker push ${env.dockerUser}/portfolio:latest"
+                }
+            }
+        }
+        stage("Deploy") {
+            steps {
+                echo "Deploying the container"
+                sh "docker-compose down && docker-compose up -d"
+            }
+        }
+    }
+}
